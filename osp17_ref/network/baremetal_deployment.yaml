@@ -19,7 +19,7 @@
       - network: tenant
         subnet: tenant_subnet
     network_config:
-      template: /home/stack/osp17_ref/nic-configs/controller.j2
+      template: /home/stack/osp17_ref/nic-configs/controller.yaml
       default_route_network:
         - external
   ansible_playbooks:
@@ -50,7 +50,7 @@
     - network: storage
       subnet: storage_subnet
     network_config:
-      template: /home/stack/osp17_ref/nic-configs/computeovsdpdksriov.j2
+      template: /home/stack/osp17_ref/nic-configs/computeovsdpdksriov.yaml
     config_drive:
       cloud_config:
         disable_root: false
