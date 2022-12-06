@@ -1,0 +1,20 @@
+resource_registry:
+  OS::TripleO::ComputeOvsDpdkSriov::Net::SoftwareConfig: nic-configs/nicpart/computeovsdpdk-nicpartition.yaml
+  OS::TripleO::ComputeSriov::Net::SoftwareConfig: nic-configs/computesriov.yaml
+  OS::TripleO::Controller::Net::SoftwareConfig: nic-configs/nicpart/controller-nicpartition.yaml
+  OS::TripleO::ControllerSriov::Net::SoftwareConfig: nic-configs/nicpart/controller-nicpartition.yaml
+
+parameter_defaults:
+  NeutronTunnelTypes: 'vxlan'
+  NeutronNetworkType: ['vxlan', 'vlan']
+  ComputeOvsDpdkSriovCount: 1
+  ComputeSriovCount: 1
+  NeutronPhysicalDevMappings: ["sriov1:eno3", "sriov2:eno4"]
+  NovaPCIPassthrough:
+  - devname: "eno3"
+    trusted: "true"
+    physical_network: "sriov1"
+  - devname: "eno4"
+    trusted: "true"
+    physical_network: "sriov2"
+

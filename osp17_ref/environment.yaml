@@ -1,0 +1,32 @@
+parameter_defaults:
+  DnsServers: ['10.11.5.19']
+
+  ControllerHostnameFormat: 'controller-%index%'
+  ControllerSriovHostnameFormat: 'controller-%index%'
+  ComputeSriovOffloadHostnameFormat: 'cmpt-offload-%index%'
+
+  OvercloudControllerFlavor: "controller"
+  OvercloudControllerSriovFlavor: "controller"
+  OvercloudComputeFlavor: "compute"
+  OvercloudComputeOvsDpdkFlavor: "compute"
+  OvercloudComputeOvsDpdkSriovFlavor: "compute"
+  OvercloudComputeSriovFlavor: "compute"
+  OvercloudComputeSriovOffloadFlavor: "compute"
+
+  ControllerSchedulerHints:
+    'capabilities:node': 'controller-%index%'
+  ComputeOvsDpdkSriovHostnameFormat: 'computeovsdpdksriov-%index%'
+  ComputeOvsDpdkSriovSchedulerHints:
+    'capabilities:node': 'compute-%index%'
+
+  ControllerCount: 0
+  ControllerSriovCount: 3
+  ComputeOvsDpdkSriovCount: 2
+  ComputeOvsDpdkCount: 0
+  ComputeSriovCount: 0
+  ComputeSriovOffloadCount: 0
+
+  NtpServer: "clock.redhat.com"
+  #TimeZone: Kolkata
+  SshServerOptions:
+    UseDns: 'no'

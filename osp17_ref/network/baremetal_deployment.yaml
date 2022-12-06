@@ -1,0 +1,86 @@
+- name: ControllerSriov
+  count: 3
+  hostname_format: controller-%index%
+  defaults:
+    profile: control
+    image:
+      href: file:///var/lib/ironic/images/overcloud-hardened-uefi-full.raw 
+    networks:
+      - network: ctlplane
+        vif: true
+      - network: external
+        subnet: external_subnet
+      - network: internal_api
+        subnet: internal_api_subnet
+      - network: storage
+        subnet: storage_subnet
+      - network: storage_mgmt
+        subnet: storage_mgmt_subnet
+      - network: tenant
+        subnet: tenant_subnet
+    network_config:
+      template: /home/stack/osp17_ref/nic-configs/controller.j2
+      default_route_network:
+        - external
+  ansible_playbooks:
+    - playbook: /usr/share/ansible/tripleo-playbooks/cli-overcloud-node-growvols.yaml
+      extra_vars:
+        growvols_args: >
+          /=8GB
+          /tmp=1GB
+          /var/log=3GB
+          /var/log/audit=1GB
+          /home=1GB
+          /srv=10GB
+          /var=100%
+
+- name: ComputeOvsDpdkSriov
+  count: 1
+  instances:
+    - hostname: computeovsdpdksriov-0
+      name: compute-0
+      image:
+        href: file:///var/lib/ironic/images/overcloud-hardened-uefi-full.raw
+  defaults:
+    networks:
+    - network: internal_api
+      subnet: internal_api_subnet
+    - network: tenant
+      subnet: tenant_subnet
+    - network: storage
+      subnet: storage_subnet
+    network_config:
+      template: /home/stack/osp17_ref/nic-configs/computeovsdpdksriov.j2
+    config_drive:
+      cloud_config:
+        disable_root: false
+        bootcmd:
+          - echo "Install nmstate dependency package................"
+        ssh_pwauth: true
+        chpasswd:
+          list: |-
+            root:12345678
+        expire: False
+  ansible_playbooks:
+    - playbook: /usr/share/ansible/tripleo-playbooks/cli-overcloud-node-kernelargs.yaml
+      extra_vars:
+        reboot_wait_timeout: 600
+        kernel_args: 'default_hugepagesz=1GB hugepagesz=1G hugepages=32 iommu=pt intel_iommu=on isolcpus=1-11,13-23'
+        tuned_profile: 'cpu-partitioning'
+        tuned_isolated_cores: '1-11,13-23'
+    - playbook: /usr/share/ansible/tripleo-playbooks/cli-overcloud-openvswitch-dpdk.yaml
+      extra_vars:
+        memory_channels: '4'
+        lcore: '0,12'
+        pmd: '1,13,2,14,3,15'
+        socket_mem: '4096'
+        disable_emc: false
+        enable_tso: false
+        revalidator: ''
+        handler: ''
+        pmd_auto_lb: false
+        pmd_load_threshold: ''
+        pmd_improvement_threshold: ''
+        pmd_rebal_interval: ''
+        nova_postcopy: true
+

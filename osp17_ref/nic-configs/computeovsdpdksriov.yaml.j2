@@ -1,0 +1,60 @@
+---
+{% raw %}
+
+network_config:
+- type: interface
+  name: nic1
+  use_dhcp: true
+  defroute: true
+
+- type: interface
+  name: nic2
+  use_dhcp: false
+  addresses:
+  - ip_netmask: {{ ctlplane_ip }}/{{ ctlplane_subnet_cidr }}
+  routes:
+  - ip_netmask: 169.254.169.254/32
+    next_hop: {{ ctlplane_ip }}
+  - default: true
+    next_hop: {{ ctlplane_ip }}
+
+- type: vlan
+  device: nic2
+  vlan_id: {{ lookup('vars', networks_lower['InternalApi'] ~ '_vlan_id') }}
+  addresses:
+  - ip_netmask: {{ lookup('vars', networks_lower['InternalApi'] ~ '_ip') }}/{{ lookup('vars', networks_lower['InternalApi'] ~ '_cidr') }}
+
+- type: vlan
+  device: nic2
+  vlan_id: {{ lookup('vars', networks_lower['Storage'] ~ '_vlan_id') }}
+  addresses:
+  - ip_netmask: {{ lookup('vars', networks_lower['Storage'] ~ '_ip') }}/{{ lookup('vars', networks_lower['Storage'] ~ '_cidr') }}
+
+- type: vlan
+  device: nic2
+  vlan_id: {{ lookup('vars', networks_lower['Tenant'] ~ '_vlan_id') }}
+  addresses:
+  - ip_netmask: {{ lookup('vars', networks_lower['Tenant'] ~ '_ip') }}/{{
+    lookup('vars', networks_lower['Tenant'] ~ '_cidr') }}
+
+- type: ovs_user_bridge
+  name: br-link1
+  use_dhcp: false
+  mtu: 9000
+  members:
+  - type: ovs_dpdk_port
+    name: dpdk2
+    members:
+    - type: interface
+      name: nic3
+
+- type: sriov_pf
+  name: nic4
+  numvfs: 8
+  use_dhcp: false
+  defroute: false
+  nm_controlled: true
+  hotplug: true
+  promisc: false
+
+{% endraw %}
