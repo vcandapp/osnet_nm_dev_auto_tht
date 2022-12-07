@@ -3,18 +3,17 @@
 PARAMS="$*"
 USER_THT="$HOME/osp17_ref"
 
-if [ ! -d /home/stack/images ]; then
-    mkdir -p /home/stack/images
-    pushd /home/stack/images
-    for i in /usr/share/rhosp-director-images/overcloud-full-latest.tar /usr/share/rhosp-director-images/ironic-python-agent-latest.tar; do tar -xvf $i; done
-    sudo yum install libguestfs-tools -y
-    export LIBGUESTFS_BACKEND=direct
-    virt-customize --root-password password:redhat -a overcloud-full.qcow2
-    virt-sysprep --operation machine-id -a overcloud-full.qcow2
-    openstack overcloud image upload --image-path /home/stack/images/ --update-existing
-    for i in $(openstack baremetal node list -c UUID -f value); do openstack overcloud node configure $i; done
-    popd
-fi
+#if [ ! -d /home/stack/images ]; then
+#    mkdir -p /home/stack/images
+#    pushd /home/stack/images
+#    for i in /usr/share/rhosp-director-images/overcloud-full-latest.tar /usr/share/rhosp-director-images/ironic-python-agent-latest.tar; do tar -xvf $i; done
+#    sudo yum install libguestfs-tools -y
+#    export LIBGUESTFS_BACKEND=direct
+#    sudo virt-customize -a overcloud-hardened-uefi-full.qcow2 --upload nmstate/impl_nmstate.py:/usr/lib/python3.9/site-packages/os_net_config/impl_nmstate.py
+#    openstack overcloud image upload --image-path /home/stack/images/ --update-existing
+#    for i in $(openstack baremetal node list -c UUID -f value); do openstack overcloud node configure --boot-mode "uefi" $i; done
+#    popd
+#fi
 
 echo "Creating roles..."
 openstack overcloud roles generate -o $HOME/roles_data.yaml ControllerSriov ComputeOvsDpdkSriov
