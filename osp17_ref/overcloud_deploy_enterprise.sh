@@ -21,7 +21,6 @@ openstack overcloud roles generate -o $HOME/roles_data.yaml Controller Compute
 openstack overcloud deploy $PARAMS \
     --templates /usr/share/openstack-tripleo-heat-templates \
     --stack overcloud \
-    --network-config \
     -r /home/stack/roles_data.yaml \
     --deployed-server \
     -e /home/stack/templates/overcloud-baremetal-deployed.yaml \
