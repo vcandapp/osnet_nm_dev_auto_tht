@@ -62,13 +62,13 @@
             root:12345678
         expire: False
   ansible_playbooks:
-    - playbook: /home/stack/osp17_ref/network/cli-overcloud-nmstate.yaml
     - playbook: /usr/share/ansible/tripleo-playbooks/cli-overcloud-node-kernelargs.yaml
       extra_vars:
         reboot_wait_timeout: 600
         kernel_args: 'default_hugepagesz=1GB hugepagesz=1G hugepages=32 iommu=pt intel_iommu=on isolcpus=1-11,13-23'
         tuned_profile: 'cpu-partitioning'
         tuned_isolated_cores: '1-11,13-23'
+    - playbook: /home/stack/osp17_ref/network/cli-overcloud-nmstate.yaml
     - playbook: /usr/share/ansible/tripleo-playbooks/cli-overcloud-openvswitch-dpdk.yaml
       extra_vars:
         memory_channels: '4'
