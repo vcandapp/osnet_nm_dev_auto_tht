@@ -62,6 +62,7 @@
             root:12345678
         expire: False
   ansible_playbooks:
+    - playbook: /home/stack/osp17_ref/network/cli-overcloud-nmstate.yaml
     - playbook: /usr/share/ansible/tripleo-playbooks/cli-overcloud-node-kernelargs.yaml
       extra_vars:
         reboot_wait_timeout: 600
