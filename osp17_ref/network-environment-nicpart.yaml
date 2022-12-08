@@ -1,3 +1,8 @@
+---
+parameter_merge_strategies:
+  ComputeOvsDpdkSriovParameters: merge
+  ControllerSriovParameters: merge
+
 resource_registry:
   OS::TripleO::ComputeOvsDpdkSriov::Net::SoftwareConfig: nic-configs/nicpart/computeovsdpdk-nicpartition.yaml
   OS::TripleO::ComputeSriov::Net::SoftwareConfig: nic-configs/computesriov.yaml

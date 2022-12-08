@@ -1,4 +1,9 @@
 #Templates for 17.0 are specified with parameters instead of resource_registry mapping
+---
+parameter_merge_strategies:
+  ComputeOvsDpdkSriovParameters: merge
+  ControllerSriovParameters: merge
+
 resource_registry:
   OS::TripleO::ComputeOvsDpdkSriov::Net::SoftwareConfig: OS::Heat::None
   OS::TripleO::Controller::Net::SoftwareConfig: OS::Heat::None

@@ -4,7 +4,7 @@
   defaults:
     profile: control
     image:
-      href: file:///var/lib/ironic/images/overcloud-hardened-uefi-full.raw 
+      href: file:///var/lib/ironic/images/overcloud-hardened-uefi-full.raw
     networks:
       - network: ctlplane
         vif: true
@@ -34,10 +34,10 @@
           /srv=10GB
           /var=100%
 
-- name: ComputeOvsDpdkSriov
+- name: ComputeSriov
   count: 1
   instances:
-    - hostname: computeovsdpdksriov-0
+    - hostname: computesriov-0
       name: compute-0
       image:
         href: file:///var/lib/ironic/images/overcloud-hardened-uefi-full.raw

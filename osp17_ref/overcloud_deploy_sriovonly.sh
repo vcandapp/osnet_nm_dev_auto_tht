@@ -16,7 +16,7 @@ USER_THT="$HOME/osp17_ref"
 #fi
 
 echo "Creating roles..."
-openstack overcloud roles generate -o $HOME/roles_data.yaml Controller ComputeSriov
+openstack overcloud roles generate -o $HOME/roles_data.yaml ControllerSriov ComputeSriov
 
 openstack overcloud deploy --debug $PARAMS \
     --templates /usr/share/openstack-tripleo-heat-templates \
