@@ -83,4 +83,5 @@
         pmd_improvement_threshold: ''
         pmd_rebal_interval: ''
         nova_postcopy: true
-    - playbook: /home/stack/osp17_ref/network/cli-overcloud-nmstate.yaml
+
+#    - playbook: /home/stack/osp17_ref/network/cli-overcloud-nmstate.yaml
