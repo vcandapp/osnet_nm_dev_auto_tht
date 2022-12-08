@@ -35,7 +35,15 @@
           cmd: yum localinstall -y http://download.lab.bos.redhat.com/rcm-guest/puddles/OpenStack/rhos-release/rhos-release-latest.noarch.rpm
           warn: false
         register: _yum1_result
-      - name: Shell yum2
+
+      - name: Restart NM_Wait_Online
+        systemd:
+          name: NetworkManager-wait-online.service
+          state: restarted
+          enabled: true
+        register: _nmwait_restart_result
+
+      - name: Configure the rhos release repo
         command:
           cmd: rhos-release rhel-9.1
           warn: false
