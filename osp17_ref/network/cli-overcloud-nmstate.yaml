@@ -13,7 +13,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-- name: Overcloud Node nmstate package select
+- name: Install required nmstate package(s) in overcloud node(s)
   hosts: allovercloud
   any_errors_fatal: true
   gather_facts: false
