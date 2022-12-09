@@ -1,0 +1,60 @@
+#Templates for 17.x are specified with parameters instead of resource_registry mapping
+---
+parameter_merge_strategies:
+  ComputeSriovParameters: merge
+  ControllerSriovParameters: merge
+
+resource_registry:
+  OS::TripleO::ComputeSriov::Net::SoftwareConfig: OS::Heat::None
+  OS::TripleO::Controller::Net::SoftwareConfig: OS::Heat::None
+  OS::TripleO::ControllerSriov::Net::SoftwareConfig: OS::Heat::None
+
+parameter_defaults:
+  ComputeSriovNetworkConfigTemplate: '/home/stack/osp17_ref/nic-configs/computesriov.yaml'
+  ControllerSriovNetworkConfigTemplate : '/home/stack/osp17_ref/nic-configs/controller.yaml'
+
+  # Nova flavor to use.
+  OvercloudControllerSriovFlavor: controller
+  OvercloudComputeSriovFlavor: compute
+
+  NeutronTunnelTypes: 'geneve'
+  NeutronNetworkType: ['geneve', 'vlan']
+  NeutronEnableDVR: false
+  NeutronPluginExtensions: "port_security,qos,segments,trunk,placement"
+  NeutronSriovAgentExtensions: "qos"
+  #NeutronTunnelTypes: 'vxlan'
+  #NeutronNetworkType: ['vxlan', 'vlan']
+  NeutronExternalNetworkBridge: "'br-ex'"
+  NeutronBridgeMappings: 'datacentre:br-ex,sriov1:br-link1,sriov2:br-link2'
+  NeutronFlatNetworks: 'datacentre,sriov1,sriov2'
+  NeutronPhysicalDevMappings: ["sriov1:eno3", "sriov2:eno4"]
+
+  ValidateGatewaysIcmp: false
+  ValidateControllersIcmp: false
+
+
+  NovaPCIPassthrough:
+  - devname: "eno3"
+    trusted: "true"
+    physical_network: "sriov1"
+  - devname: "eno4"
+    trusted: "true"
+    physical_network: "sriov2"
+
+  ControllerSriovParameters:
+    # Set OVN gateway router, required for external connectivity (SR-IOV)
+    OVNCMSOptions: "enable-chassis-as-gw"
+  ############################
+  #  Scheduler configuration #
+  ############################
+  NovaSchedulerDefaultFilters:
+    - "RetryFilter"
+    - "AvailabilityZoneFilter"
+    - "ComputeFilter"
+    - "ComputeCapabilitiesFilter"
+    - "ImagePropertiesFilter"
+    - "ServerGroupAntiAffinityFilter"
+    - "ServerGroupAffinityFilter"
+    - "PciPassthroughFilter"
+    - "NUMATopologyFilter"
+    - "AggregateInstanceExtraSpecsFilter"

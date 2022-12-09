@@ -16,7 +16,7 @@ USER_THT="$HOME/osp17_ref"
 #fi
 
 echo "Creating roles..."
-openstack overcloud roles generate -o $HOME/roles_data.yaml ControllerSriov ComputeSriov
+openstack overcloud roles generate -o $USER_THT/roles_data.yaml ControllerSriov ComputeSriov
 
 openstack overcloud deploy --debug $PARAMS \
     --templates /usr/share/openstack-tripleo-heat-templates \
@@ -33,9 +33,9 @@ openstack overcloud deploy --debug $PARAMS \
     -e /usr/share/openstack-tripleo-heat-templates/environments/config-debug.yaml \
     -e /home/stack/osp17_ref/environment.yaml \
     -e /home/stack/osp17_ref/network-environment.yaml \
+    -e /home/stack/osp17_ref/network-environment-sriovonly.yaml \
     -e /home/stack/osp17_ref/ml2-ovs-nfv.yaml \
     -e /home/stack/containers-prepare-parameter.yaml \
     --ntp-server clock.redhat.com,time1.google.com,time2.google.com,time3.google.com,time4.google.com \
     --log-file overcloud_deployment.log
 
-#    -e /home/stack/osp17_ref/network-environment-sriovonly.yaml \
