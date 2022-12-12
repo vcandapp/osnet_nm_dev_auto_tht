@@ -50,7 +50,7 @@
     - network: storage
       subnet: storage_subnet
     network_config:
-      template: /home/stack/osp17_ref/nic-configs/computeovsdpdksriov.yaml
+      template: /home/stack/osp17_ref/nic-configs/computesriov.yaml
     config_drive:
       cloud_config:
         disable_root: false
