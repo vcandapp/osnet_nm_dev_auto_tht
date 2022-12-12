@@ -39,7 +39,7 @@ network_config:
     bonding_options: "mode=active-backup miimon=100"
     members:
       - type: sriov_pf
-        name: ens1f0
+        name: nic3
         numvfs: 10
         primary: true
         promisc: true
@@ -47,7 +47,7 @@ network_config:
         defroute: false
         link_mode: switchdev
       - type: sriov_pf
-        name: ens1f1
+        name: nic4
         numvfs: 10
         promisc: true
         use_dhcp: false
@@ -59,4 +59,5 @@ network_config:
   vlan_id: {{ lookup('vars', networks_lower['Tenant'] ~ '_vlan_id') }}
   addresses:
   - ip_netmask: {{ lookup('vars', networks_lower['Tenant'] ~ '_ip') }}/{{ lookup('vars', networks_lower['Tenant'] ~ '_cidr') }}
+
 {% endraw %}
