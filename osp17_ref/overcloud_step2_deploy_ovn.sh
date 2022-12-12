@@ -1,11 +1,13 @@
 #!/bin/bash
 
+USER_THT="$HOME/osp17_ref"
+
 echo "Deploying pre-provisioned overcloud nodes...."
 openstack overcloud deploy $PARAMS \
     --templates /usr/share/openstack-tripleo-heat-templates \
     --timeout 120  --ntp-server clock1.rdu2.redhat.com \
     --stack overcloud \
-    -r /home/stack/roles_data.yaml \
+    -r $USER_THT/roles_data.yaml \
     -n /home/stack/osp17_ref/network/network_data_v2.yaml \
     --deployed-server \
     -e /home/stack/templates/overcloud-baremetal-deployed.yaml \

@@ -16,12 +16,12 @@ USER_THT="$HOME/osp17_ref"
 #fi
 
 echo "Creating roles..."
-openstack overcloud roles generate -o $HOME/roles_data.yaml ControllerSriov ComputeOvsDpdkSriov
+openstack overcloud roles generate -o $USER_THT/roles_data.yaml ControllerSriov ComputeOvsDpdkSriov
 
 openstack overcloud deploy $PARAMS \
     --templates /usr/share/openstack-tripleo-heat-templates \
     --stack overcloud \
-    -r /home/stack/roles_data.yaml \
+    -r $USER_THT/roles_data.yaml \
     -n $USER_THT/network/network_data_v2.yaml \
     --deployed-server \
     -e /home/stack/templates/overcloud-baremetal-deployed.yaml \

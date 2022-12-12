@@ -1,5 +1,5 @@
 - name: ControllerSriov
-  count: 2
+  count: 3
   hostname_format: controller-%index%
   defaults:
     profile: control
@@ -132,4 +132,3 @@
         pmd_improvement_threshold: ''
         pmd_rebal_interval: ''
         nova_postcopy: true
-

@@ -16,13 +16,13 @@ if [ ! -d /home/stack/images ]; then
 fi
 
 # Always generate roles_data file
-openstack overcloud roles generate -o $HOME/roles_data.yaml Controller ComputeSriov ComputeOvsDpdkSriov
+openstack overcloud roles generate -o $USER_THT/roles_data.yaml Controller ComputeSriov ComputeOvsDpdkSriov
 
 openstack overcloud deploy $PARAMS \
     --templates \
     --timeout 120 --ntp-server clock1.rdu2.redhat.com \
     --stack overcloud \
-    -r /home/stack/roles_data.yaml \
+    -r $USER_THT/roles_data.yaml \
     --deployed-server \
     --baremetal-deployment /home/stack/osp17_ref/network/baremetal_deployment.yaml \
     --vip-file /home/stack/osp17_ref/network/vip_data.yaml \
