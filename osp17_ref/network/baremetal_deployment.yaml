@@ -86,7 +86,7 @@
         nova_postcopy: true
 
 - name: ComputeOvsDpdkSriov
-  count: 0
+  count: 1
   instances:
     - hostname: computeovsdpdksriov-0
       name: compute-1
