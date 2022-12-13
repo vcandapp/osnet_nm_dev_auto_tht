@@ -66,3 +66,10 @@
           name: NetworkManager-ovs
           state: present
         register: _nm_install_result
+
+      - name: Restart NetworkManager service
+        systemd:
+          name: NetworkManager.service
+          state: restarted
+          enabled: true
+        register: _nm_restart_result

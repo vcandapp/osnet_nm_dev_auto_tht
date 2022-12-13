@@ -1,0 +1,69 @@
+---
+{% raw %}
+
+network_config:
+- type: interface
+  name: nic1
+  use_dhcp: false
+  addresses:
+  - ip_netmask: {{ ctlplane_ip }}/{{ ctlplane_subnet_cidr }}
+  routes:
+  - ip_netmask: 169.254.169.254/32
+    next_hop: {{ ctlplane_ip }}
+
+- type: ovs_bridge
+  name: br-ex
+  use_dhcp: false
+  addresses:
+  - ip_netmask: {{ lookup('vars', networks_lower['External'] ~ '_ip') }}/{{ lookup('vars', networks_lower['External'] ~ '_cidr') }}
+  members:
+  - type: interface
+    name: nic4
+  routes:
+  - default: true
+    next_hop: {{ lookup('vars', networks_lower['External'] ~ '_gateway_ip') }}
+
+- type: vlan
+  device: nic1
+  vlan_id: {{ lookup('vars', networks_lower['InternalApi'] ~ '_vlan_id') }}
+  addresses:
+  - ip_netmask: {{ lookup('vars', networks_lower['InternalApi'] ~ '_ip') }}/{{ lookup('vars', networks_lower['InternalApi'] ~ '_cidr') }}
+
+- type: vlan
+  device: nic1
+  vlan_id: {{ lookup('vars', networks_lower['Storage'] ~ '_vlan_id') }}
+  addresses:
+  - ip_netmask: {{ lookup('vars', networks_lower['Storage'] ~ '_ip') }}/{{ lookup('vars', networks_lower['Storage'] ~ '_cidr') }}
+
+- type: vlan
+  device: nic1
+  vlan_id: {{ lookup('vars', networks_lower['StorageMgmt'] ~ '_vlan_id') }}
+  addresses:
+  - ip_netmask: {{ lookup('vars', networks_lower['StorageMgmt'] ~ '_ip') }}/{{ lookup('vars', networks_lower['StorageMgmt'] ~ '_cidr') }}
+
+- type: vlan
+  device: nic1
+  vlan_id: {{ lookup('vars', networks_lower['Tenant'] ~ '_vlan_id') }}
+  addresses:
+  - ip_netmask: {{ lookup('vars', networks_lower['Tenant'] ~ '_ip') }}/{{
+    lookup('vars', networks_lower['Tenant'] ~ '_cidr') }}
+
+- type: ovs_bridge
+  name: br-tenant
+  use_dhcp: false
+  mtu: 9000
+  members:
+  - type: interface
+    name: nic2
+  - type: vlan 
+    addresses:
+    - ip_netmask: {{ tenant_ip }}/{{ tenant_cidr }}
+
+- type: ovs_bridge
+  name: br-link2
+  use_dhcp: false
+  members:
+  - type: interface
+    name: nic3
+
+{% endraw %}
