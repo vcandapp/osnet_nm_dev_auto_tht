@@ -8,7 +8,7 @@ openstack overcloud roles generate -o $HOME/roles_data.yaml ControllerSriov Comp
 
 openstack overcloud deploy $PARAMS \
     --templates /usr/share/openstack-tripleo-heat-templates \
-    --ntp-server clock1.rdu2.redhat.com \
+    --ntp-server clock.redhat.com,time1.google.com,time2.google.com,time3.google.com,time4.google.com \
     --stack overcloud \
     -r /home/stack/roles_data.yaml \
     --deployed-server \
