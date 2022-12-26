@@ -1,9 +1,12 @@
 {% raw %}
+
+---
+
 network_config:
 - type: interface
   name: nic1
   use_dhcp: true
-  def_route: true
+  default: true
 
 - type: interface
   name: nic2
@@ -13,7 +16,10 @@ network_config:
   routes:
   - ip_netmask: 169.254.169.254/32
     next_hop: {{ ctlplane_ip }}
-  - default: true
+    #  Adding route for clock.redhat.com
+  - ip_netmask: 10.18.100.10/24
+    next_hop: {{ ctlplane_ip }}
+  - default: false
     next_hop: {{ ctlplane_ip }}
 
 - type: vlan

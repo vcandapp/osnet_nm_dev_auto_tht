@@ -61,11 +61,23 @@
           state: present
         register: _nmstate_install_result
 
+      - name: Install ovsdb plugin for nmstate
+        package:
+          name: nmstate-plugin-ovsdb
+          state: present
+        register: _nmovsdb_install_result
+
       - name: Install NetworkManager-ovs
         package:
           name: NetworkManager-ovs
           state: present
-        register: _nm_install_result
+        register: _nmovs_install_result
+
+      - name: Install NetworkManager-config-server
+        package:
+          name: NetworkManager-config-server
+          state: present
+        register: _nmcfgsrv_install_result
 
       - name: Restart NetworkManager service
         systemd:

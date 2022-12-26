@@ -6,11 +6,15 @@ USER_THT="$HOME/osp17_ref"
 #if [ ! -d /home/stack/images ]; then
 #    mkdir -p /home/stack/images
 #    pushd /home/stack/images
-#    for i in /usr/share/rhosp-director-images/overcloud-full-latest.tar /usr/share/rhosp-director-images/ironic-python-agent-latest.tar; do tar -xvf $i; done
+#    for i in /usr/share/rhosp-director-images/overcloud-full-latest.tar /usr/share/rhosp-director-images/ironic-python-agent-latest.tar /usr/share/rhosp-director-images/overcloud-hardened-uefi-full.tar; do tar -xvf $i; done
 #    sudo yum install libguestfs-tools -y
+#    sudo yum install /usr/bin/virt-sysprep -y
 #    export LIBGUESTFS_BACKEND=direct
-#    sudo virt-customize -a overcloud-hardened-uefi-full.qcow2 --upload nmstate/impl_nmstate.py:/usr/lib/python3.9/site-packages/os_net_config/impl_nmstate.py
+#    virt-customize -a overcloud-hardened-uefi-full.qcow2 --upload /home/stack/osp17_ref/os_net_config/impl_nmstate.py:/usr/lib/python3.9/site-packages/os_net_config/impl_nmstate.py
+#    virt-customize -a overcloud-hardened-uefi-full.qcow2 --upload /home/stack/osp17_ref/os_net_config/cli.py:/usr/lib/python3.9/site-packages/os_net_config/cli.py
+#    virt-customize -a overcloud-hardened-uefi-full.qcow2 --upload /home/stack/osp17_ref/os_net_config/objects.py:/usr/lib/python3.9/site-packages/os_net_config/objects.py
 #    openstack overcloud image upload --image-path /home/stack/images/ --update-existing
+#    openstack overcloud image upload --os-image-name overcloud-hardened-uefi-full.qcow2 --update-existing
 #    for i in $(openstack baremetal node list -c UUID -f value); do openstack overcloud node configure --boot-mode "uefi" $i; done
 #    popd
 #fi

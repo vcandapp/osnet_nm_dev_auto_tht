@@ -5,7 +5,7 @@ network_config:
 - type: interface
   name: nic1
   use_dhcp: true
-  defroute: true
+  default: true
 
 - type: interface
   name: nic2
@@ -14,6 +14,9 @@ network_config:
   - ip_netmask: {{ ctlplane_ip }}/{{ ctlplane_subnet_cidr }}
   routes:
   - ip_netmask: 169.254.169.254/32
+    next_hop: {{ ctlplane_ip }}
+    #  Adding route for clock.redhat.com
+  - ip_netmask: 10.18.100.10/24
     next_hop: {{ ctlplane_ip }}
   - default: false
     next_hop: {{ ctlplane_ip }}
@@ -53,8 +56,6 @@ network_config:
   numvfs: 8
   use_dhcp: false
   defroute: false
-  nm_controlled: true
-  hotplug: true
-  promisc: false
+  nm_controlled: false
 
 {% endraw %}
