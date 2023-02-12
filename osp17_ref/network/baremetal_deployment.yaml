@@ -22,17 +22,26 @@
       template: /home/stack/osp17_ref/nic-configs/controller.yaml
       default_route_network:
         - external
+    config_drive:
+      cloud_config:
+        ssh_pwauth: true
+        disable_root: false
+        chpasswd:
+          list: |-
+            root:12345678
+        expire: False
+
   ansible_playbooks:
     - playbook: /usr/share/ansible/tripleo-playbooks/cli-overcloud-node-growvols.yaml
       extra_vars:
         growvols_args: >
-          /=8GB
+          /=7GB
           /tmp=1GB
-          /var/log=3GB
+          /var/log=2GB
           /var/log/audit=1GB
           /home=1GB
-          /srv=10GB
-          /var=100%
+          /var=70%
+          /srv=30%
 
 - name: ComputeSriov
   count: 1
@@ -54,8 +63,6 @@
     config_drive:
       cloud_config:
         disable_root: false
-        bootcmd:
-          - echo "Install nmstate dependency package................"
         ssh_pwauth: true
         chpasswd:
           list: |-
