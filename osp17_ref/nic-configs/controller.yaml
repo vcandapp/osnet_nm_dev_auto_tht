@@ -1,5 +1,4 @@
 ---
-{% raw %}
 
 network_config:
 - type: interface
@@ -60,5 +59,3 @@ network_config:
   members:
   - type: interface
     name: nic3
-
-{% endraw %}

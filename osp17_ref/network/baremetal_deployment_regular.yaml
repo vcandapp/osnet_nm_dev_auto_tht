@@ -23,12 +23,13 @@
       default_route_network:
         - external
   ansible_playbooks:
+    - playbook: /home/stack/osp17_ref/network/growvols_bz.yaml
     - playbook: /usr/share/ansible/tripleo-playbooks/cli-overcloud-node-growvols.yaml
       extra_vars:
         growvols_args: >
           /=8GB
           /tmp=1GB
-          /var/log=3GB
+          /var/log=10GB
           /var/log/audit=1GB
           /home=1GB
           /srv=10GB
@@ -40,7 +41,9 @@
     - hostname: computeovsdpdksriov-0
       name: compute-0
       image:
-        href: file:///var/lib/ironic/images/overcloud-hardened-uefi-full.raw
+        href: file:///var/lib/ironic/images/overcloud-full.raw
+        kernel: file:///var/lib/ironic/images/overcloud-full.vmlinuz
+        ramdisk: file:///var/lib/ironic/images/overcloud-full.initrd
   defaults:
     networks:
     - network: internal_api
@@ -54,8 +57,6 @@
     config_drive:
       cloud_config:
         disable_root: false
-        bootcmd:
-          - echo "Install nmstate dependency package................"
         ssh_pwauth: true
         chpasswd:
           list: |-
@@ -84,4 +85,3 @@
         pmd_improvement_threshold: ''
         pmd_rebal_interval: ''
         nova_postcopy: true
-

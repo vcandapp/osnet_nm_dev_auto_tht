@@ -20,34 +20,30 @@
   pre_tasks:
     - name: Wait for provisioned nodes to boot
       wait_for_connection:
-        timeout: 600
+        timeout: 40000
         delay: 10
       connection: local
 
   tasks:
-    - name: gather facts
-      setup:
     - name: Installing all packages for osnet-nmstate
       become: true
       block:
+      - name: clear other connections
+        ansible.builtin.shell:
+          cmd: nmcli con del $(nmcli con show | grep "eno1" | awk -F '  ' '{print $2}')
+        ignore_errors: true
+        register: connection_result
+        async: 3000
+        poll: 5
       - name: Shell yum1
-        command:
+        ansible.builtin.shell:
           cmd: yum localinstall -y http://download.lab.bos.redhat.com/rcm-guest/puddles/OpenStack/rhos-release/rhos-release-latest.noarch.rpm
-          warn: false
         register: _yum1_result
 
       - name: Configure the rhos release repo
-        command:
-          cmd: rhos-release rhel-9.1
-          warn: false
+        ansible.builtin.shell:
+          cmd: rhos-release rhel-9.2
         register: _yum2_result
-
-      - name: Restart NM_Wait_Online
-        systemd:
-          name: NetworkManager-wait-online.service
-          state: restarted
-          enabled: true
-        register: _nmwait_restart_result
 
       - name: Install python3-libnmstate
         package:
@@ -60,12 +56,6 @@
           name: nmstate
           state: present
         register: _nmstate_install_result
-
-      - name: Install ovsdb plugin for nmstate
-        package:
-          name: nmstate-plugin-ovsdb
-          state: present
-        register: _nmovsdb_install_result
 
       - name: Install NetworkManager-ovs
         package:
@@ -85,3 +75,4 @@
           state: restarted
           enabled: true
         register: _nm_restart_result
+

@@ -1,5 +1,4 @@
 ---
-{% raw %}
 
 network_config:
 - type: interface
@@ -61,4 +60,3 @@ network_config:
   defroute: false
   nm_controlled: false
 
-{% endraw %}
