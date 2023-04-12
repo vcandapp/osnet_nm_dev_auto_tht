@@ -42,7 +42,7 @@
 
       - name: Configure the rhos release repo
         ansible.builtin.shell:
-          cmd: rhos-release rhel-9.2
+          cmd: rhos-release rhel-9.1
         register: _yum2_result
 
       - name: Install python3-libnmstate
