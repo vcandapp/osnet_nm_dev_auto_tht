@@ -16,6 +16,7 @@
 
 
 import argparse
+import json
 import os
 import sys
 import yaml
@@ -53,7 +54,7 @@ def parse_opts(argv):
                         nargs='*', default=None)
     parser.add_argument('-p', '--provider', metavar='PROVIDER',
                         help="""The provider to use. """
-                        """One of: ifcfg, nmstate, eni, iproute.""",
+                        """One of: ifcfg, eni, nmstate, iproute.""",
                         default=None)
     parser.add_argument('-r', '--root-dir', metavar='ROOT_DIR',
                         help="""The root directory of the filesystem.""",
@@ -122,13 +123,17 @@ def parse_opts(argv):
     return opts
 
 
-def check_configure_sriov(obj):
+def _is_sriovpf_obj_found(obj):
     configure_sriov = False
-    for member in obj.members:
-        if isinstance(member, objects.SriovPF):
-            configure_sriov = True
-        elif hasattr(member, "members") and member.members is not None:
-            configure_sriov = check_configure_sriov(member)
+    if isinstance(obj, objects.SriovPF):
+        configure_sriov = True
+    elif hasattr(obj, 'members') and obj.members is not None:
+        for member in obj.members:
+            if isinstance(member, objects.SriovPF):
+                configure_sriov = True
+                break
+            else:
+                configure_sriov = _is_sriovpf_obj_found(member)
     return configure_sriov
 
 
@@ -159,7 +164,7 @@ def main(argv=sys.argv, main_logger=None):
     main_logger.info(f"Using config file at: {opts.config_file}")
     iface_array = []
     configure_sriov = False
-    sriovpf_member_of_bond_ovs_port_list = []
+    sriovpf_bond_ovs_ports = []
     provider = None
     if opts.provider:
         if opts.provider == 'ifcfg':
@@ -197,7 +202,7 @@ def main(argv=sys.argv, main_logger=None):
         with open(opts.mapping_file) as cf:
             iface_map = yaml.safe_load(cf.read())
             iface_mapping = iface_map.get("interface_mapping")
-            main_logger.debug(f"interface_mapping JSON: {str(iface_mapping)}")
+            main_logger.debug(f"interface_mapping: {iface_mapping}")
             persist_mapping = opts.persist_mapping
             main_logger.debug(f"persist_mapping: {persist_mapping}")
     else:
@@ -238,7 +243,7 @@ def main(argv=sys.argv, main_logger=None):
         # Return the report on the mapped NICs. If all NICs were found, exit
         # cleanly, otherwise exit with status 1.
         main_logger.debug("Interface report requested, exiting after report.")
-        print(reported_nics)
+        print(json.dumps(reported_nics))
         return retval
 
     # Read config file containing network configs to apply
@@ -246,7 +251,7 @@ def main(argv=sys.argv, main_logger=None):
         try:
             with open(opts.config_file) as cf:
                 iface_array = yaml.safe_load(cf.read()).get("network_config")
-                main_logger.debug(f"network_config JSON: {str(iface_array)}")
+                main_logger.debug(f"network_config: {iface_array}")
         except IOError:
             main_logger.error(f"Error reading file: {opts.config_file}")
             return 1
@@ -285,16 +290,13 @@ def main(argv=sys.argv, main_logger=None):
             obj = objects.object_from_json(iface_json)
         except utils.SriovVfNotFoundException:
             continue
-        if isinstance(obj, objects.SriovPF):
+        if _is_sriovpf_obj_found(obj):
             configure_sriov = True
             provider.add_object(obj)
-        elif hasattr(obj, 'members') and obj.members is not None:
-            if check_configure_sriov(obj):
-                configure_sriov = True
-                provider.add_object(obj)
-
-                sriovpf_member_of_bond_ovs_port_list.extend(
-                    get_sriovpf_member_of_bond_ovs_port(obj))
+            # Look for the presence of SriovPF as members of LinuxBond and that
+            # LinuxBond is member of OvsBridge
+            sriovpf_bond_ovs_ports.extend(
+                get_sriovpf_member_of_bond_ovs_port(obj))
 
     # After reboot, shared_block for pf interface in switchdev mode will be
     # missing in case IPv6 is enabled on the slaves of the bond and that bond
@@ -302,8 +304,8 @@ def main(argv=sys.argv, main_logger=None):
     # manages the slaves.
     # So as a workaround for that case we are disabling IPv6 over pfs so that
     # OVS creates the shared_blocks ingress
-    if sriovpf_member_of_bond_ovs_port_list:
-        disable_ipv6_for_netdevs(sriovpf_member_of_bond_ovs_port_list)
+    if sriovpf_bond_ovs_ports:
+        disable_ipv6_for_netdevs(sriovpf_bond_ovs_ports)
 
     if configure_sriov:
         # Apply the ifcfgs for PFs now, so that NM_CONTROLLED=no is applied
@@ -314,8 +316,8 @@ def main(argv=sys.argv, main_logger=None):
         # wouldn't have changed.
         pf_files_changed = provider.apply(cleanup=opts.cleanup,
                                           activate=not opts.no_activate)
-        if opts.provider == 'ifcfg' and not opts.noop:
-            restart_ovs = bool(sriovpf_member_of_bond_ovs_port_list)
+        if not opts.noop:
+            restart_ovs = bool(sriovpf_bond_ovs_ports)
             # Avoid ovs restart for os-net-config re-runs, which will
             # dirupt the offload configuration
             if os.path.exists(utils._SRIOV_CONFIG_SERVICE_FILE):
@@ -326,7 +328,8 @@ def main(argv=sys.argv, main_logger=None):
                 restart_openvswitch=restart_ovs)
 
     for iface_json in iface_array:
-        # All objects other than the sriov_pf will be added here.
+        # All sriov_pfs at top level or at any member level will be
+        # ignored and all other objects are parsed will be added here.
         # The VFs are expected to be available now and an exception
         # SriovVfNotFoundException shall be raised if not available.
         try:
@@ -334,10 +337,10 @@ def main(argv=sys.argv, main_logger=None):
         except utils.SriovVfNotFoundException:
             if not opts.noop:
                 raise
-        if not isinstance(obj, objects.SriovPF):
+        if not _is_sriovpf_obj_found(obj):
             provider.add_object(obj)
 
-    if opts.provider == 'ifcfg' and configure_sriov and not opts.noop:
+    if configure_sriov and not opts.noop:
         utils.configure_sriov_vfs()
 
     files_changed = provider.apply(cleanup=opts.cleanup,
@@ -358,4 +361,3 @@ def main(argv=sys.argv, main_logger=None):
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv, main_logger=logger))
-

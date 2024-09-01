@@ -1,0 +1,79 @@
+---
+- name: Overcloud Node nmstate package select
+  hosts: allovercloud
+  any_errors_fatal: true
+  gather_facts: false
+  pre_tasks:
+    - name: Wait for provisioned nodes to boot
+      wait_for_connection:
+        timeout: 600
+        delay: 10
+      connection: local
+
+  tasks:
+    - name: Install CA certificates package
+      become: yes
+      yum:
+        name: ca-certificates
+        state: present
+
+    - name: Download Red Hat CA certificates
+      become: yes
+      get_url:
+        url: '{{ item }}'
+        dest: '/etc/pki/ca-trust/source/anchors/'
+        owner: root
+        group: root
+        mode: 0644
+        validate_certs: no
+      with_items:
+        - 'https://engineering.redhat.com/Eng-CA.crt'
+        - 'https://certs.corp.redhat.com/certs/2022-IT-Root-CA.pem'
+
+    - name: Update Trusted CA
+      become: yes
+      shell: "/usr/bin/update-ca-trust extract"
+
+    - name: gather facts
+      setup:
+    - name: Installing all packages for osnet-nmstate
+      become: true
+      block:
+      - name: Shell yum1
+        command:
+          cmd: yum localinstall -y http://download.lab.bos.redhat.com/rcm-guest/puddles/OpenStack/rhos-release/rhos-release-latest.noarch.rpm
+        register: _yum1_result
+      - name: Shell yum2
+        command:
+          cmd: rhos-release rhel-9.2
+        register: _yum2_result
+
+      - name: Install python3-libnmstate
+        package:
+          name: python3-libnmstate
+          state: present
+        register: _libnm_install_result
+
+      - name: Install nmstate
+        package:
+          name: nmstate
+          state: present
+        register: _nmstate_install_result
+
+      - name: Install NetworkManager-ovs
+        package:
+          name: NetworkManager-ovs
+          state: present
+        register: _nm_install_result
+
+      - name: Install python3-pyroute2
+        package:
+          name: python3-pyroute2
+          state: present
+        register: _nm_install_result
+
+      - name: Install mstflint
+        package:
+          name: mstflint
+          state: present
+        register: _nm_install_result    
