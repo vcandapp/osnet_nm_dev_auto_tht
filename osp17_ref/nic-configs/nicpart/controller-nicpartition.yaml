@@ -1,5 +1,4 @@
 ---
-{% raw %}
 
 network_config:
 - type: interface
@@ -12,7 +11,7 @@ network_config:
     next_hop: {{ ctlplane_ip }}
 
 - type: ovs_bridge
-  name: br-ex
+  name: br-mgmt
   use_dhcp: false
   addresses:
   - ip_netmask: {{ lookup('vars', networks_lower['External'] ~ '_ip') }}/{{ lookup('vars', networks_lower['External'] ~ '_cidr') }}
@@ -41,29 +40,21 @@ network_config:
   addresses:
   - ip_netmask: {{ lookup('vars', networks_lower['StorageMgmt'] ~ '_ip') }}/{{ lookup('vars', networks_lower['StorageMgmt'] ~ '_cidr') }}
 
-- type: vlan
-  device: nic1
-  vlan_id: {{ lookup('vars', networks_lower['Tenant'] ~ '_vlan_id') }}
-  addresses:
-  - ip_netmask: {{ lookup('vars', networks_lower['Tenant'] ~ '_ip') }}/{{
-    lookup('vars', networks_lower['Tenant'] ~ '_cidr') }}
-
 - type: ovs_bridge
   name: br-tenant
   use_dhcp: false
-  mtu: 9000
   members:
   - type: interface
     name: nic2
-  - type: vlan 
+  - type: vlan
+    vlan_id: {{ lookup('vars', networks_lower['Tenant'] ~ '_vlan_id') }}
+    mtu: 9000
     addresses:
-    - ip_netmask: {{ tenant_ip }}/{{ tenant_cidr }}
-
+    - ip_netmask: {{ lookup('vars', networks_lower['Tenant'] ~ '_ip') }}/{{ lookup('vars', networks_lower['Tenant'] ~ '_cidr') }}
+    
 - type: ovs_bridge
-  name: br-link2
+  name: br-dpdk1
   use_dhcp: false
   members:
   - type: interface
     name: nic3
-
-{% endraw %}
